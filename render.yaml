@@ -1,10 +1,12 @@
 services:
   - type: web
-    name: telegram-bot
+    name: splitsells-bot
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: python bot.py
     envVars:
       - key: TELEGRAM_TOKEN
-        value: 8538557437:AAGhzBNEgpsFJKrOEzJg5NAwTFIJWBb1IAM
+        sync: false
+      - key: PORT
+        value: 10000
