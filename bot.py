@@ -12,6 +12,13 @@ from telegram.ext import (
     ConversationHandler
 )
 from telegram.error import BadRequest
+# Импорты для keep-alive
+try:
+    from keep_alive import keep_alive
+    KEEP_ALIVE_AVAILABLE = True
+except ImportError:
+    KEEP_ALIVE_AVAILABLE = False
+    print("⚠️ Keep-alive модуль не найден")
 
 # Включаем логирование
 logging.basicConfig(
@@ -597,6 +604,7 @@ async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # --- Основная функция ---
 def main():
+
     """Запуск бота"""
     # Создаем приложение
     application = Application.builder().token(TOKEN).build()
@@ -660,10 +668,14 @@ def main():
     # Обработчик неизвестных команд
     application.add_handler(MessageHandler(filters.COMMAND, unknown))
 
-    # Запускаем бота
-    print("🤖 Бот запущен с Reply клавиатурой 'Главное меню'...")
-    print(f"💳 Реквизиты для оплаты: {PAYMENT_DETAILS['card_number']}")
-    print(f"👤 Админ: {ADMIN_ID}")
+    # Запускаем keep-alive сервер если доступен
+    if KEEP_ALIVE_AVAILABLE:
+        keep_alive()
+        print("🚀 Keep-alive активирован")
+
+    # ... остальной ваш код без изменений ...
+
+    print("🤖 Запуск Telegram бота...")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
