@@ -84,9 +84,11 @@ ACCOUNTS = {
 # Хранилище заказов
 orders = {}
 
+
 # ========== HEALTH SERVER ДЛЯ RENDER ==========
 class HealthHandler(http.server.SimpleHTTPRequestHandler):
     """Обработчик для health checks"""
+
     def do_GET(self):
         if self.path in ['/', '/health', '/ping']:
             self.send_response(200)
@@ -96,17 +98,18 @@ class HealthHandler(http.server.SimpleHTTPRequestHandler):
         else:
             self.send_response(404)
             self.end_headers()
-    
+
     def log_message(self, format, *args):
         # Отключаем логи
         pass
 
+
 def run_health_server():
     """Запускает health check сервер на порту из переменной окружения"""
-    PORT = int(os.environ.get('PORT', 10000))
-    
+    PORT = int(os.environ.get('PORT', 18012))
+
     print(f"🚀 Starting health server on port {PORT}...")
-    
+
     # Несколько попыток запуска с разными портами
     for attempt in range(3):
         try:
@@ -126,12 +129,14 @@ def run_health_server():
             print(f"⚠️ Health server error: {e}")
             time.sleep(5)
 
+
 def start_health_server():
     """Запускает health сервер в отдельном потоке"""
     health_thread = threading.Thread(target=run_health_server)
     health_thread.daemon = True
     health_thread.start()
     return health_thread
+
 
 # --- Клавиатуры ---
 def get_main_keyboard():
@@ -143,6 +148,7 @@ def get_main_keyboard():
     ]
     return InlineKeyboardMarkup(keyboard)
 
+
 def get_main_reply_keyboard():
     """Reply клавиатура с кнопкой Главное меню"""
     return ReplyKeyboardMarkup(
@@ -150,6 +156,7 @@ def get_main_reply_keyboard():
         resize_keyboard=True,
         one_time_keyboard=False
     )
+
 
 def get_catalog_keyboard():
     """Каталог аккаунтов"""
@@ -160,6 +167,7 @@ def get_catalog_keyboard():
 
     keyboard.append([InlineKeyboardButton("◀️ Назад", callback_data='back_to_main')])
     return InlineKeyboardMarkup(keyboard)
+
 
 def get_confirm_keyboard(account_key):
     """Клавиатура подтверждения заказа"""
@@ -172,6 +180,7 @@ def get_confirm_keyboard(account_key):
     ]
     return InlineKeyboardMarkup(keyboard)
 
+
 def get_payment_methods_keyboard():
     """Клавиатура выбора способа оплаты"""
     keyboard = [
@@ -179,6 +188,7 @@ def get_payment_methods_keyboard():
         [InlineKeyboardButton("◀️ Назад", callback_data='back_to_catalog')]
     ]
     return InlineKeyboardMarkup(keyboard)
+
 
 def get_after_payment_keyboard(order_id):
     """Клавиатура после показа реквизитов"""
@@ -188,9 +198,11 @@ def get_after_payment_keyboard(order_id):
     ]
     return InlineKeyboardMarkup(keyboard)
 
+
 def get_back_to_main_keyboard():
     """Просто кнопка назад в главное меню"""
     return InlineKeyboardMarkup([[InlineKeyboardButton("🏠 В главное меню", callback_data='back_to_main')]])
+
 
 # --- Обработчики команд ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -226,6 +238,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     return MAIN_MENU
 
+
 async def handle_main_menu_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик кнопки 'Главное меню' в Reply клавиатуре"""
     user = update.effective_user
@@ -242,6 +255,7 @@ async def handle_main_menu_button(update: Update, context: ContextTypes.DEFAULT_
         parse_mode='Markdown'
     )
     return MAIN_MENU
+
 
 async def catalog(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Показать каталог"""
@@ -261,6 +275,7 @@ async def catalog(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode='Markdown'
     )
     return SELECTING_ACCOUNT
+
 
 async def select_account(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Выбор конкретного аккаунта"""
@@ -299,6 +314,7 @@ async def select_account(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode='Markdown'
     )
     return CONFIRMING_ORDER
+
 
 async def confirm_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Подтверждение заказа и переход к оплате"""
@@ -347,6 +363,7 @@ async def confirm_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return PAYMENT_INFO
 
+
 async def show_payment_details(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Показать реквизиты для оплаты картой"""
     query = update.callback_query
@@ -389,6 +406,7 @@ async def show_payment_details(update: Update, context: ContextTypes.DEFAULT_TYP
     )
     return WAITING_RECEIPT
 
+
 async def request_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Запрос отправки чека"""
     query = update.callback_query
@@ -421,6 +439,7 @@ async def request_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ])
     )
     return WAITING_RECEIPT
+
 
 async def handle_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработка полученного чека"""
@@ -511,6 +530,7 @@ async def handle_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return WAITING_RECEIPT
 
+
 async def cancel_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Отмена заказа"""
     query = update.callback_query
@@ -538,6 +558,7 @@ async def cancel_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     return MAIN_MENU
 
+
 async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Связь с поддержкой"""
     query = update.callback_query
@@ -559,6 +580,7 @@ async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode='Markdown'
     )
     return MAIN_MENU
+
 
 async def faq(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """FAQ"""
@@ -593,6 +615,7 @@ async def faq(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return MAIN_MENU
 
+
 async def back_to_main(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Возврат в главное меню"""
     query = update.callback_query
@@ -600,12 +623,14 @@ async def back_to_main(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await start(update, context)
 
+
 async def back_to_catalog(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Возврат в каталог"""
     query = update.callback_query
     await query.answer()
 
     await catalog(update, context)
+
 
 async def cancel_simple(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Простая отмена (без order_id)"""
@@ -618,6 +643,7 @@ async def cancel_simple(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return MAIN_MENU
 
+
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик неизвестных команд"""
     await update.message.reply_text(
@@ -626,18 +652,46 @@ async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return MAIN_MENU
 
+
 # --- Основная функция ---
 def main():
     """Запуск бота"""
     print("🚀 Starting SplitSells Telegram Bot...")
-    
-    # Запускаем health сервер для Render
-    print("🔄 Starting health server...")
-    health_thread = start_health_server()
-    
+
+    # Сначала запускаем health сервер СРАЗУ и ПРОСТО
+    import threading
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+
+    class HealthHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path in ['/', '/health']:
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b'OK')
+            else:
+                self.send_response(404)
+                self.end_headers()
+
+        def log_message(self, *args):
+            pass  # Отключаем логи
+
+    def run_server():
+        port = int(os.environ.get('PORT', 18012))
+        server = HTTPServer(('0.0.0.0', port), HealthHandler)
+        print(f"✅ Health server started on port {port}")
+        server.serve_forever()
+
+    # Запускаем health сервер в отдельном потоке
+    health_thread = threading.Thread(target=run_server, daemon=True)
+    health_thread.start()
+
+    # Ждем чтобы сервер точно запустился
+    import time
+    time.sleep(5)
+
     # Даем время health серверу запуститься
     time.sleep(3)
-    
+
     # Создаем приложение Telegram бота
     application = Application.builder().token(TOKEN).build()
 
@@ -702,7 +756,7 @@ def main():
 
     print("🤖 Telegram bot initialized")
     print("✅ Ready to accept requests...")
-    
+
     # Запускаем бота с обработкой ошибок
     while True:
         try:
@@ -715,6 +769,7 @@ def main():
             print(f"⚠️ Bot error: {e}")
             print("🔄 Restarting in 10 seconds...")
             time.sleep(10)
+
 
 if __name__ == '__main__':
     main()
