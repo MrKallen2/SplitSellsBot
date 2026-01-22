@@ -9,4 +9,5 @@ services:
       - key: TELEGRAM_TOKEN
         sync: false
       - key: PORT
-        value: 10000
+        value: 18012
+
